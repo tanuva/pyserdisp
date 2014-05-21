@@ -8,7 +8,7 @@ Usage
 =====
 
 Pass device descriptor and display model the way serdisp_init expects them.
-You may use Serdisp.setTurnOffOnQuit(bool) to prevent the display from being turned off when leaving the with statement.
+You may use `Serdisp.setTurnOffOnQuit(bool)` to prevent the display from being turned off when leaving the with statement.
 
 ````
 with Serdisp("USB:7c0/1501", "CTINCLUD") as serdisp:
