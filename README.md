@@ -2,7 +2,9 @@ pyserdisp
 =========
 
 Thin Python bindings for serdisplib >= 1.96.
-I've tried to make parameters more pythonic where applicable. Still, most calls fit with the original serdisplib docs.
+I've tried to make parameters more pythonic where applicable. Still, most calls fit with the original [http://serdisplib.sourceforge.net/ serdisplib docs].
+
+The "raw" bindings are available in `pyserdisp.py`, `graphdisp.py` contains high-level drawing functions for images and text.
 
 Usage
 =====
