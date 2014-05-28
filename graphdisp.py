@@ -2,9 +2,6 @@ from pyserdisp import Serdisp
 from textrenderer import Font
 import Image
 
-# TODO
-# - showText: text alignment, vert and horiz
-
 class GraphDisp(Serdisp):
 	def __init__(self, device, model, options = ""):
 		self.disp = Serdisp.__init__(self, device, model, options)
