@@ -32,14 +32,34 @@ class GraphDisp(Serdisp):
 			for y in range(height):
 				Serdisp.setColour(self, [x, y], bg[y][x])
 
-	def drawText(self, textpos, text, colour = Serdisp.BLACK):
+	# Alignment:
+	# halign can be one of ["left", "center", "right", None]
+	# valign can be one of ["top", "center", "bottom", None]
+	# If an alignment is specified, the corresponding textpos coordinate
+	# is interpreted as offset from that display edge or ignored for "center".
+	def drawText(self, textpos, text, colour = Serdisp.BLACK, halign = None, valign = None):
+		if not len(textpos) == 2:
+			raise ValueError("textpos must consist of 2 coordinates")
+
 		bitmap = self.font.render_text(text)
+
+		if halign == "left":
+			pass
+		elif halign == "center":
+			textpos[0] = (self.disp.getWidth() / 2.0) - (bitmap.width / 2.0)
+		elif halign == "right":
+			textpos[0] = self.disp.getWidth() - bitmap.width - textpos[0]
+		if valign == "top":
+			pass
+		elif valign == "center":
+			textpos[1] = (self.disp.getHeight() / 2.0) - (bitmap.height / 2.0)
+		elif valign == "bottom":
+			textpos[1] = self.disp.getHeight() - bitmap.height - textpos[1]
+
 		for y in range(bitmap.height):
 			for x in range(bitmap.width):
 				pixpos = [textpos[0] + x, textpos[1] + y]
-				#print x, y, bitmap.pixels[x+y*bitmap.width]
 				pixBit = (1 - bitmap.pixels[x + y * bitmap.width])
-				#print pixBit, colour, pixCol, pixBit * colour[0]
 				Serdisp.setGrey(self, pixpos, pixBit * 255)
 
 	def drawProgressBar(self, pos, size, state):
