@@ -41,3 +41,29 @@ class GraphDisp(Serdisp):
 				pixBit = (1 - bitmap.pixels[x + y * bitmap.width])
 				#print pixBit, colour, pixCol, pixBit * colour[0]
 				Serdisp.setGrey(self, pixpos, pixBit * 255)
+
+	def drawProgressBar(self, pos, size, state):
+		if state < 0:
+			state = 0
+		if state > 1:
+			state = 1
+
+		if pos[0] < 0 or pos[1] < 0:
+			raise ValueError("pos must not be negative")
+		if size[0] < 1 or size[1] < 1:
+			raise ValueError("size must be greater than 1")
+
+		if size[0] >= 3 and size[1] >= 3:
+			# draw a border
+			for x in range(size[0] + 1):
+				Serdisp.setGrey(self, [pos[0] + x, pos[1]], 0)
+				Serdisp.setGrey(self, [pos[0] + x, pos[1] + size[1]], 0)
+			for y in range(size[1] + 1):
+				Serdisp.setGrey(self, [pos[0], pos[1] + y], 0)
+				Serdisp.setGrey(self, [pos[0] + size[0], pos[1] + y], 0)
+
+		# draw the status bar "content"
+		contentWidth = round(state * float(size[0] + 1))
+		for x in range(contentWidth):
+			for y in range(size[1] + 1):
+				Serdisp.setGrey(self, [pos[0] + x, pos[1] + y], 0)
