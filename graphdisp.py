@@ -2,17 +2,18 @@ from pyserdisp import Serdisp
 from textrenderer import Font
 import Image
 
-class GraphDisp(Serdisp):
+class GraphDisp:
 	def __init__(self, device, model, options = ""):
-		self.disp = Serdisp.__init__(self, device, model, options)
-		self.font = Font("DroidSans.ttf", 12)
+		self.serdisp = Serdisp(device, model, options)
+		self.font = Font("/home/pi/.xbmc/addons/xbmcdisp/DroidSans.ttf", 12)
 
 	def __enter__(self):
-		Serdisp.__enter__(self)
+		self.serdisp.__enter__()
 		return self
 
 	def __exit__(self, type, value, traceback):
-		Serdisp.__exit__(self, type, value, traceback)
+		self.serdisp.__exit__(type, value, traceback)
+
 
 	def drawPixmap(self, path):
 		img = None
@@ -32,12 +33,14 @@ class GraphDisp(Serdisp):
 			for y in range(height):
 				Serdisp.setColour(self, [x, y], bg[y][x])
 
-	# Alignment:
-	# halign can be one of ["left", "center", "right", None]
-	# valign can be one of ["top", "center", "bottom", None]
-	# If an alignment is specified, the corresponding textpos coordinate
-	# is interpreted as offset from that display edge or ignored for "center".
 	def drawText(self, textpos, text, colour = Serdisp.BLACK, halign = None, valign = None):
+		"""
+		Alignment:
+		halign can be one of ["left", "center", "right", None]
+		valign can be one of ["top", "center", "bottom", None]
+		If an alignment is specified, the corresponding textpos coordinate
+		is interpreted as offset from that display edge or ignored for "center".
+		"""
 		if not len(textpos) == 2:
 			raise ValueError("textpos must consist of 2 coordinates")
 
