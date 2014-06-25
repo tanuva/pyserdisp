@@ -11,35 +11,39 @@ class Serdisp:
 		self.options = options
 		self.turnOffOnQuit = True
 		self.sdl = ctypes.CDLL("libserdisp.so")
-
-	def __enter__(self):
 		self.init()
 		self.clear() # display might be full of randomness if we don't clear here
+
+	def __enter__(self):
 		return self
 
 	def __exit__(self, type, value, traceback):
 		if self.turnOffOnQuit:
-			self.clear()
 			self.quit()
 		else:
 			self.close()
 
 	# constructs a single 32bit integer from a tuple (a, r, g, b)
 	def __pack(self, rgbTuple):
-		if not len(rgbTuple) in [3, 4]:
-			raise Exception("Colour tuples should be (A)RGB formatted.")
-
 		argb = ()
 
-		if len(rgbTuple) == 4:
-			argb = (rgbTuple[0] << 8) + rgbTuple[1]
-			argb = (argb << 8) + rgbTuple[2]
-			argb = (argb << 8) + rgbTuple[3]
-		elif len(rgbTuple) == 3:
-			# Assuming alpha as fully opaque
-			argb = (0xFF << 8) + rgbTuple[0]
-			argb = (argb << 8) + rgbTuple[1]
-			argb = (argb << 8) + rgbTuple[2]
+		try:
+			if len(rgbTuple) == 4:
+				argb = (rgbTuple[0] << 8) + rgbTuple[1]
+				argb = (argb << 8) + rgbTuple[2]
+				argb = (argb << 8) + rgbTuple[3]
+			elif len(rgbTuple) == 3:
+				# Assuming alpha as fully opaque
+				argb = (0xFF << 8) + rgbTuple[0]
+				argb = (argb << 8) + rgbTuple[1]
+				argb = (argb << 8) + rgbTuple[2]
+			elif len(rgbTuple) == 1:
+				# THIS. IS. GREYSCAAAALE!
+				argb = (0xFF << 8) + rgbTuple[0]
+				argb = (argb << 8) + rgbTuple[0]
+				argb = (argb << 8) + rgbTuple[0]
+		except Exception:
+			raise Exception("Colour tuples should be [ARGB], [RGB] or [Greyscale] formatted.")
 		
 		return c_long(argb)
 

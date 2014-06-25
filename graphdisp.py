@@ -6,6 +6,8 @@ class GraphDisp:
 	def __init__(self, device, model, options = ""):
 		self.serdisp = Serdisp(device, model, options)
 		self.font = Font("/home/pi/.xbmc/addons/xbmcdisp/DroidSans.ttf", 12)
+		self.nextFrame = self.setupNewFrame()
+		self.prevFrame = self.setupNewFrame()
 
 	def __enter__(self):
 		self.serdisp.__enter__()
@@ -14,6 +16,32 @@ class GraphDisp:
 	def __exit__(self, type, value, traceback):
 		self.serdisp.__exit__(type, value, traceback)
 
+	def setupNewFrame(self):
+		column = [(255, 255, 255, 255) for x in xrange(self.serdisp.getHeight())]
+		return [list(column) for x in xrange(self.serdisp.getWidth())]
+
+	def flip(self):
+		for x in xrange(self.serdisp.getWidth()):
+			for y in xrange(self.serdisp.getHeight()):
+				oldPix = self.prevFrame[x][y]
+				newPix = self.nextFrame[x][y]
+				if (not oldPix[0] == newPix[0] or
+					not oldPix[1] == newPix[1] or
+					not oldPix[2] == newPix[2]):
+					self.serdisp.setColour([x,y], self.nextFrame[x][y])
+					#self.prevFrame[x][y] = self.serdisp.WHITE
+
+		self.serdisp.update()
+		#tmp = self.prevFrame
+		self.prevFrame = self.nextFrame
+		#self.nextFrame = tmp
+		self.nextFrame = self.setupNewFrame()
+
+	def drawPixel(self, pos, value):
+		"""
+		Expects coordinates and an ARGB pixel.
+		"""
+		self.nextFrame[pos[0]][pos[1]] = value
 
 	def drawPixmap(self, path):
 		img = None
@@ -31,7 +59,7 @@ class GraphDisp:
 
 		for x in range(width):
 			for y in range(height):
-				Serdisp.setColour(self, [x, y], bg[y][x])
+				self.drawPixel((x, y), bg[y][x])
 
 	def drawText(self, textpos, text, colour = Serdisp.BLACK, halign = None, valign = None):
 		"""
@@ -49,23 +77,23 @@ class GraphDisp:
 		if halign == "left":
 			pass
 		elif halign == "center":
-			textpos[0] = (self.disp.getWidth() / 2.0) - (bitmap.width / 2.0)
+			textpos[0] = int(round((self.serdisp.getWidth() / 2.0) - (bitmap.width / 2.0)))
 		elif halign == "right":
-			textpos[0] = self.disp.getWidth() - bitmap.width - textpos[0]
+			textpos[0] = self.getWidth() - bitmap.width - textpos[0]
 		if valign == "top":
 			pass
 		elif valign == "center":
-			textpos[1] = (self.disp.getHeight() / 2.0) - (bitmap.height / 2.0)
+			textpos[1] = int(round((self.serdisp.getHeight() / 2.0) - (bitmap.height / 2.0)))
 		elif valign == "bottom":
-			textpos[1] = self.disp.getHeight() - bitmap.height - textpos[1]
+			textpos[1] = self.getHeight() - bitmap.height - textpos[1]
 
 		for y in range(bitmap.height):
 			for x in range(bitmap.width):
 				pixpos = [textpos[0] + x, textpos[1] + y]
-				pixBit = (1 - bitmap.pixels[x + y * bitmap.width])
-				Serdisp.setGrey(self, pixpos, pixBit * 255)
+				pixel = (1 - bitmap.pixels[x + y * bitmap.width]) * 255
+				self.drawPixel(pixpos, (255, pixel, pixel, pixel))
 
-	def drawProgressBar(self, pos, size, state):
+	def drawProgressBar(self, pos, size, state, colour = (255, 0, 0, 0)):
 		if state < 0:
 			state = 0
 		if state > 1:
@@ -78,15 +106,15 @@ class GraphDisp:
 
 		if size[0] >= 3 and size[1] >= 3:
 			# draw a border
-			for x in range(size[0] + 1):
-				Serdisp.setGrey(self, [pos[0] + x, pos[1]], 0)
-				Serdisp.setGrey(self, [pos[0] + x, pos[1] + size[1]], 0)
-			for y in range(size[1] + 1):
-				Serdisp.setGrey(self, [pos[0], pos[1] + y], 0)
-				Serdisp.setGrey(self, [pos[0] + size[0], pos[1] + y], 0)
+			for x in range(size[0]):
+				self.drawPixel((pos[0] + x, pos[1]), colour)
+				self.drawPixel((pos[0] + x, pos[1] + size[1] - 1), colour)
+			for y in range(size[1] - 1):
+				self.drawPixel((pos[0], pos[1] + y), colour)
+				self.drawPixel((pos[0] + size[0] - 1, pos[1] + y), colour)
 
 		# draw the status bar "content"
-		contentWidth = round(state * float(size[0] + 1))
+		contentWidth = int(round(state * float(size[0])))
 		for x in range(contentWidth):
-			for y in range(size[1] + 1):
-				Serdisp.setGrey(self, [pos[0] + x, pos[1] + y], 0)
+			for y in range(size[1] - 1):
+				self.drawPixel((pos[0] + x, pos[1] + y), colour)
