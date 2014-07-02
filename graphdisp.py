@@ -5,7 +5,7 @@ import Image
 class GraphDisp:
 	def __init__(self, device, model, options = ""):
 		self.serdisp = Serdisp(device, model, options)
-		self.font = Font("/home/pi/.xbmc/addons/xbmcdisp/DroidSans.ttf", 12)
+		self.font = "/home/pi/.xbmc/addons/xbmcdisp/DroidSans.ttf"
 		self.nextFrame = self.setupNewFrame()
 		self.prevFrame = self.setupNewFrame()
 
@@ -14,6 +14,7 @@ class GraphDisp:
 		return self
 
 	def __exit__(self, type, value, traceback):
+		self.serdisp.clear()
 		self.serdisp.__exit__(type, value, traceback)
 
 	def setupNewFrame(self):
@@ -41,6 +42,10 @@ class GraphDisp:
 		"""
 		Expects coordinates and an ARGB pixel.
 		"""
+		if len(value) == 1:
+			value = (255, value[0], value[0], value[0])
+		elif len(value) == 3:
+			value = (255, value[0], value[1], value[2])
 		self.nextFrame[pos[0]][pos[1]] = value
 
 	def drawPixmap(self, path):
@@ -61,7 +66,7 @@ class GraphDisp:
 			for y in range(height):
 				self.drawPixel((x, y), bg[y][x])
 
-	def drawText(self, textpos, text, colour = Serdisp.BLACK, halign = None, valign = None):
+	def drawText(self, textpos, text, colour = Serdisp.BLACK, halign = None, valign = None, size = 12):
 		"""
 		Alignment:
 		halign can be one of ["left", "center", "right", None]
@@ -72,23 +77,24 @@ class GraphDisp:
 		if not len(textpos) == 2:
 			raise ValueError("textpos must consist of 2 coordinates")
 
-		bitmap = self.font.render_text(text)
+		font = Font(self.font, size)
+		bitmap = font.render_text(text)
 
 		if halign == "left":
 			pass
 		elif halign == "center":
 			textpos[0] = int(round((self.serdisp.getWidth() / 2.0) - (bitmap.width / 2.0)))
 		elif halign == "right":
-			textpos[0] = self.getWidth() - bitmap.width - textpos[0]
+			textpos[0] = self.serdisp.getWidth() - bitmap.width - textpos[0]
 		if valign == "top":
 			pass
 		elif valign == "center":
 			textpos[1] = int(round((self.serdisp.getHeight() / 2.0) - (bitmap.height / 2.0)))
 		elif valign == "bottom":
-			textpos[1] = self.getHeight() - bitmap.height - textpos[1]
+			textpos[1] = self.serdisp.getHeight() - bitmap.height - textpos[1]
 
-		for y in range(bitmap.height):
-			for x in range(bitmap.width):
+		for y in range(min(bitmap.height, self.serdisp.getHeight())):
+			for x in range(min(bitmap.width, self.serdisp.getWidth())):
 				pixpos = [textpos[0] + x, textpos[1] + y]
 				pixel = (1 - bitmap.pixels[x + y * bitmap.width]) * 255
 				self.drawPixel(pixpos, (255, pixel, pixel, pixel))
