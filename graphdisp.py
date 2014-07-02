@@ -46,7 +46,13 @@ class GraphDisp:
 			value = (255, value[0], value[0], value[0])
 		elif len(value) == 3:
 			value = (255, value[0], value[1], value[2])
-		self.nextFrame[pos[0]][pos[1]] = value
+
+		try:
+			if not self.nextFrame[pos[0]][pos[1]][0] == 0:
+				self.nextFrame[pos[0]][pos[1]] = value
+		except IndexError:
+			#print "Overdraw:", pos[0], pos[1]
+			pass
 
 	def drawPixmap(self, path):
 		img = None
@@ -93,8 +99,8 @@ class GraphDisp:
 		elif valign == "bottom":
 			textpos[1] = self.serdisp.getHeight() - bitmap.height - textpos[1]
 
-		for y in range(min(bitmap.height, self.serdisp.getHeight())):
-			for x in range(min(bitmap.width, self.serdisp.getWidth())):
+		for y in xrange(min(bitmap.height, self.serdisp.getHeight())):
+			for x in xrange(min(bitmap.width, self.serdisp.getWidth())):
 				pixpos = [textpos[0] + x, textpos[1] + y]
 				pixel = (1 - bitmap.pixels[x + y * bitmap.width]) * 255
 				self.drawPixel(pixpos, (255, pixel, pixel, pixel))
