@@ -61,6 +61,10 @@ class Serdisp:
 	# serdisp_control.h
 	# =================
 
+	OPTION_NO = 0
+	OPTION_YES = 1
+	OPTION_TOGGLE = 2
+
 	# TODO move SDCONN_open and serdisp_init here (as one)
 	def init(self):
 		self.conn = self.sdl.SDCONN_open(self.device)
@@ -133,10 +137,19 @@ class Serdisp:
 		return self.model # serdisplib does the same anyway
 
 	def isDisplay(self):
-		return bool(self.sdl.serdisp_isdisplay(self.display))
+		return bool(self.sdl.serdisp_isdisplay(self.disp))
+
+	def getOption(self, option):
+		output = -1
+		return self.sdl.serdisp_getoption(self.disp, option, output)
+
+	def setOption(self, option, value):
+		self.sdl.serdisp_setoption(self.disp, option, value)
+
+	def isOption(self, option):
+		return self.sdl.serdisp_isoption(self.disp, option)
 
 	# TODO display description functions
-	# TODO display options
 
 	# serdisp_colour.h
 	# ================
