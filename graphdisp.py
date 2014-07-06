@@ -6,8 +6,6 @@ class GraphDisp:
 	def __init__(self, device, model, options = ""):
 		self.serdisp = Serdisp(device, model, options)
 		self.font = "/home/pi/.xbmc/addons/xbmcdisp/DroidSans.ttf"
-		self.nextFrame = self.setupNewFrame()
-		self.prevFrame = self.setupNewFrame()
 
 	def __enter__(self):
 		self.serdisp.__enter__()
@@ -17,42 +15,15 @@ class GraphDisp:
 		self.serdisp.clear()
 		self.serdisp.__exit__(type, value, traceback)
 
-	def setupNewFrame(self):
-		column = [(255, 255, 255, 255) for x in xrange(self.serdisp.getHeight())]
-		return [list(column) for x in xrange(self.serdisp.getWidth())]
-
-	def flip(self):
-		for x in xrange(self.serdisp.getWidth()):
-			for y in xrange(self.serdisp.getHeight()):
-				oldPix = self.prevFrame[x][y]
-				newPix = self.nextFrame[x][y]
-				if (not oldPix[0] == newPix[0] or
-					not oldPix[1] == newPix[1] or
-					not oldPix[2] == newPix[2]):
-					self.serdisp.setColour([x,y], self.nextFrame[x][y])
-					#self.prevFrame[x][y] = self.serdisp.WHITE
-
-		self.serdisp.update()
-		#tmp = self.prevFrame
-		self.prevFrame = self.nextFrame
-		#self.nextFrame = tmp
-		self.nextFrame = self.setupNewFrame()
-
 	def drawPixel(self, pos, value):
 		"""
-		Expects coordinates and an ARGB pixel.
+		Expects coordinates and a grey or (A)RGB pixel.
 		"""
 		if len(value) == 1:
 			value = (255, value[0], value[0], value[0])
 		elif len(value) == 3:
 			value = (255, value[0], value[1], value[2])
-
-		try:
-			if not self.nextFrame[pos[0]][pos[1]][0] == 0:
-				self.nextFrame[pos[0]][pos[1]] = value
-		except IndexError:
-			#print "Overdraw:", pos[0], pos[1]
-			pass
+		self.serdisp.setColour(pos, value)
 
 	def drawPixmap(self, path):
 		img = None
