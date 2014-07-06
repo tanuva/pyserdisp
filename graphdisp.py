@@ -1,15 +1,15 @@
 from pyserdisp import Serdisp
 from textrenderer import Font
 import Image
-import os
 
 # Source: http://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
+import os, sys, inspect
 projPath = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
 
 class GraphDisp:
 	def __init__(self, device, model, options = ""):
 		self.serdisp = Serdisp(device, model, options)
-		self.font = os.path.join(projPath, "DroidSans.ttf")
+		self.font = os.path.join(projPath, "../DroidSans.ttf")
 
 	def __enter__(self):
 		self.serdisp.__enter__()
