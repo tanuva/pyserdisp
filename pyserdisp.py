@@ -43,7 +43,7 @@ class Serdisp:
 				argb = (argb << 8) + rgbTuple[0]
 				argb = (argb << 8) + rgbTuple[0]
 		except Exception:
-			raise Exception("Colour tuples should be [ARGB], [RGB] or [Greyscale] formatted.")
+			raise Exception("Colour tuples should be [ARGB], [RGB] or [Greyscale] formatted. Is:", rgbTuple)
 		
 		return c_long(argb)
 
