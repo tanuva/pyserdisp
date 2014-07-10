@@ -1,107 +1,142 @@
 from pyserdisp import Serdisp
 from textrenderer import Font
 import Image
+import os
+import sys
 
-# Source: http://stackoverflow.com/questions/279237/import-a-module-from-a-relative-path
-import os, sys, inspect
-projPath = os.path.realpath(os.path.abspath(os.path.split(inspect.getfile( inspect.currentframe() ))[0]))
+class Pixmap:
+	def __init__(self, serdisp, path, position):
+		if not isinstance(serdisp, Serdisp):
+			raise ValueError("serdisp must be a Serdisp instance!")
 
-class GraphDisp:
-	def __init__(self, device, model, options = ""):
-		self.serdisp = Serdisp(device, model, options)
-		self.font = os.path.join(projPath, "../DroidSans.ttf")
+		self.serdisp = serdisp
+		self.path = path
+		self.position = position
+		if position[0] < 0 or position[1] < 0:
+			print "Warning: position of", path, "is < 0:", position
 
-	def __enter__(self):
-		self.serdisp.__enter__()
-		return self
-
-	def __exit__(self, type, value, traceback):
-		self.serdisp.clear()
-		self.serdisp.__exit__(type, value, traceback)
-
-	def drawPixel(self, pos, value):
-		"""
-		Expects coordinates and a grey or (A)RGB pixel.
-		"""
-		if len(value) == 1:
-			value = (255, value[0], value[0], value[0])
-		elif len(value) == 3:
-			value = (255, value[0], value[1], value[2])
-		self.serdisp.setColour(pos, value)
-
-	def drawPixmap(self, path):
+		# load the image
 		img = None
 		try:
 			img = Image.open(path)
 			img.load()
 		except IOError:
-			print "Couldn't open", path
+			print "Warning: Couldn't open", path
+			return
 
 		# TODO only if necessary				
 		img.convert("1") # Convert to black/white mode
-		bg = list(img.getdata())
-		width, height = img.size
-		bg = [bg[i * width:(i + 1) * width] for i in xrange(height)]
+		imgData = list(img.getdata())
+		self.size = img.size
+		self.data = [imgData[i * self.size[0]:(i + 1) * self.size[0]] for i in xrange(self.size[1])]
 
-		for x in range(width):
-			for y in range(height):
-				self.drawPixel((x, y), bg[y][x])
+	def draw(self):
+		"""
+		Draws the pixmap at the given location.
+		"""
+		for x in xrange(self.size[0]):
+			for y in xrange(self.size[1]):
+				self.serdisp.setColour((x, y), self.data[y][x])
 
-	def drawText(self, textpos, text, colour = Serdisp.BLACK, halign = None, valign = None, size = 12):
+	def erase(self):
+		"""
+		Sets every pixel of the affected region to white.
+		"""
+		for x in xrange(self.size[0]):
+			for y in xrange(self.size[1]):
+				self.serdisp.setColour((x, y), (255, 255, 255, 255))
+
+class Text:
+	def __init__(self, serdisp, position, fontpath, fontsize, text, **kwargs):
+		self.serdisp = serdisp
+		self.position = position
+
+		if not os.path.isfile(fontpath):
+			raise ValueError("Font doesn't exist:", fontpath)
+
+		self.kwargs = kwargs
+		self.font = Font(fontpath, fontsize)
+		self.setText(text)
+
+	def setText(self, text):
 		"""
 		Alignment:
-		halign can be one of ["left", "center", "right", None]
-		valign can be one of ["top", "center", "bottom", None]
+		halign can be one of ["left", "center", "right"]
+		valign can be one of ["top", "center", "bottom"]
 		If an alignment is specified, the corresponding textpos coordinate
 		is interpreted as offset from that display edge or ignored for "center".
 		"""
-		if not len(textpos) == 2:
-			raise ValueError("textpos must consist of 2 coordinates")
 
-		font = Font(self.font, size)
-		bitmap = font.render_text(text)
+		self.text = text
+		self.bitmap = self.font.render_text(self.text)
+		self.size = []
+		self.size.append(min(self.bitmap.width, self.serdisp.getWidth() - 2))
+		self.size.append(min(self.bitmap.height, self.serdisp.getHeight() - 2))
 
-		if halign == "left":
-			pass
-		elif halign == "center":
-			textpos[0] = int(round((self.serdisp.getWidth() / 2.0) - (bitmap.width / 2.0)))
-		elif halign == "right":
-			textpos[0] = self.serdisp.getWidth() - bitmap.width - textpos[0]
-		if valign == "top":
-			pass
-		elif valign == "center":
-			textpos[1] = int(round((self.serdisp.getHeight() / 2.0) - (bitmap.height / 2.0)))
-		elif valign == "bottom":
-			textpos[1] = self.serdisp.getHeight() - bitmap.height - textpos[1]
+		if "halign" in self.kwargs.keys():
+			if self.kwargs["halign"] == "center":
+				self.position[0] = max(2, int((self.serdisp.getWidth() / 2.0) - (self.bitmap.width / 2.0)))
+			elif self.kwargs["halign"] == "right":
+				self.position[0] = self.serdisp.getWidth() - self.bitmap.width - self.position[0]
+		if "valign" in self.kwargs.keys():
+			if self.kwargs["valign"] == "center":
+				self.position[1] = max(2, int(round((self.serdisp.getHeight() / 2.0) - (self.bitmap.height / 2.0))))
+			elif self.kwargs["valign"] == "bottom":
+				self.position[1] = self.serdisp.getHeight() - self.bitmap.height - self.position[1]
 
-		for y in xrange(min(bitmap.height, self.serdisp.getHeight())):
-			for x in xrange(min(bitmap.width, self.serdisp.getWidth())):
-				pixpos = [textpos[0] + x, textpos[1] + y]
-				pixel = (1 - bitmap.pixels[x + y * bitmap.width]) * 255
-				self.drawPixel(pixpos, (255, pixel, pixel, pixel))
+	def draw(self):
+		for y in xrange(self.size[1]):
+			for x in xrange(self.size[0]):
+				pixpos = [self.position[0] + x, self.position[1] + y]
+				pixel = (1 - self.bitmap.pixels[x + y * self.bitmap.width]) * 255
+				self.serdisp.setColour(pixpos, (255, pixel, pixel, pixel))
 
-	def drawProgressBar(self, pos, size, state, colour = (255, 0, 0, 0)):
-		if state < 0:
-			state = 0
-		if state > 1:
-			state = 1
+class Progressbar:
+	def __init__(self, serdisp, position, size, **kwargs):
+		if not isinstance(serdisp, Serdisp):
+			raise ValueError("serdisp must be an instance of Serdisp.")
 
-		if pos[0] < 0 or pos[1] < 0:
+		self.serdisp = serdisp
+		
+		if position[0] < 0 or position[1] < 0:
 			raise ValueError("pos must not be negative")
+		self.position = position
+
 		if size[0] < 1 or size[1] < 1:
 			raise ValueError("size must be greater than 1")
+		self.size = size
 
-		if size[0] >= 3 and size[1] >= 3:
-			# draw a border
-			for x in range(size[0]):
-				self.drawPixel((pos[0] + x, pos[1]), colour)
-				self.drawPixel((pos[0] + x, pos[1] + size[1] - 1), colour)
-			for y in range(size[1] - 1):
-				self.drawPixel((pos[0], pos[1] + y), colour)
-				self.drawPixel((pos[0] + size[0] - 1, pos[1] + y), colour)
+		# Ugly! But that is the pythonic way, isn't it?
+		try:
+			self.setState(kwargs["state"])
+		except:
+			self.setState(0.0)
+		try:
+			self.drawBorder = kwargs["border"]
+			if self.drawBorder and (size[0] < 3 or size[1] < 3):
+				print "Warning: progress bar cannot have a border if x/y size is < 3:", size
+				self.drawBorder = False
+		except:
+			self.drawBorder = True
+		try:
+			self.colour = kwargs["colour"]
+		except:
+			self.colour = (255, 0, 0, 0)
+
+	def setState(self, state):
+		self.state = min(1, max(0, state))
+
+	def draw(self):
+		if self.drawBorder:
+			for x in xrange(self.size[0]):
+				self.serdisp.setColour((self.position[0] + x, self.position[1]), self.colour)
+				self.serdisp.setColour((self.position[0] + x, self.position[1] + selfsize[1] - 1), self.colour)
+			for y in xrange(self.size[1] - 1):
+				self.serdisp.setColour((self.position[0], self.position[1] + y), self.colour)
+				self.serdisp.setColour((self.position[0] + self.size[0] - 1, self.position[1] + y), self.colour)
 
 		# draw the status bar "content"
-		contentWidth = int(round(state * float(size[0])))
-		for x in range(contentWidth):
-			for y in range(size[1] - 1):
-				self.drawPixel((pos[0] + x, pos[1] + y), colour)
+		contentWidth = int(round(self.state * float(self.size[0])))
+		for x in xrange(contentWidth):
+			for y in xrange(self.size[1] - 1):
+				self.serdisp.setColour((self.position[0] + x, self.position[1] + y), self.colour)
