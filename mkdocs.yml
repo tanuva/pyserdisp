@@ -1,0 +1,8 @@
+site_name: PySerdisp Documentation
+pages:
+- [index.md, Home]
+- [widget.md, Widgets]
+
+theme: spacelab
+repo_url: https://github.com/tanuva/pyserdisp
+site_author: Marcel Brüggebors
