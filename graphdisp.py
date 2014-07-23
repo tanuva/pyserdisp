@@ -1,6 +1,6 @@
 from pyserdisp import Serdisp
 from textrenderer import Font
-import Image
+from PIL import Image
 import os
 import sys
 
@@ -20,8 +20,9 @@ class Pixmap:
 		try:
 			img = Image.open(path)
 			img.load()
-		except IOError:
+		except IOError, e:
 			print "Warning: Couldn't open", path
+			print e
 			return
 
 		# TODO only if necessary				
