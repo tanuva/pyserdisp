@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <meta name="author" content="Marcel Brüggebors">
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+
+        <title>Widgets - PySerdisp Documentation</title>
+
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link href="../css/prettify-1.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="..">PySerdisp Documentation</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="..">Home</a>
+                </li>
+            
+            
+            
+                <li class="active">
+                    <a href="./">Widgets</a>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <li >
+                    <a rel="next" href="..">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a rel="prev" >
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/tanuva/pyserdisp">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#widgets">Widgets</a></li>
+        
+            <li><a href="#text">Text</a></li>
+        
+            <li><a href="#pixmap">Pixmap</a></li>
+        
+            <li><a href="#progress-bar">Progress Bar</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="widgets">Widgets</h1>
+<p>The widgets module contains some high-level widgets that build upon the PySerdisp API.</p>
+<h2 id="text">Text</h2>
+<p><hr />
+This widget uses <code>freetype-py</code> to render text into a bitmap and draws that one.</p>
+<p>The <code>halign</code> and <code>valign</code> keyword arguments can be used to specify horizontal and/or vertical alignment. If alignment is set to right (instead of the default "left"), the position argument will be interpreted as an offset from the top right corner instead of the top left one. The same goes for vertical alignment and the bottom right corner.</p>
+<h3 id="constructor">Constructor</h3>
+<ul>
+<li><code>serdisp</code> The PySerdisp instance to draw the pixels with</li>
+<li><code>position</code> Text position as a 2-tuple or list, ex.: (20,4)</li>
+<li><code>fontpath</code> Absolute or relative path to a TrueType font file</li>
+<li><code>fontsize</code> Font size in points (as usual)</li>
+<li><code>text</code> The actual text to display</li>
+<li>kwargs:<ul>
+<li><code>halign</code> Can be one of: center, right</li>
+<li><code>valign</code> Can be one of: center, bottom</li>
+</ul>
+</li>
+</ul>
+<h3 id="members">Members</h3>
+<ul>
+<li><code>draw()</code></li>
+<li><code>setText(str)</code></li>
+</ul>
+<h2 id="pixmap">Pixmap</h2>
+<p><hr />
+Draws a pixmap from a file. Pixels are drawn 1:1 - if the image is larger than the display, excess pixels are ignored.</p>
+<h3 id="constructor_1">Constructor</h3>
+<ul>
+<li><code>serdisp</code> The PySerdisp instance to draw the pixels with</li>
+<li><code>path</code> Absolute or relative path to the image file</li>
+<li><code>position</code> Upper left corner as a 2-tuple or list, ex.: (20,4)</li>
+</ul>
+<h3 id="members_1">Members</h3>
+<ul>
+<li><code>draw()</code></li>
+<li><code>erase()</code> Erases the area occupied by the image with white</li>
+</ul>
+<h2 id="progress-bar">Progress Bar</h2>
+<p><hr />
+Draws a simple progress bar that can have a border.</p>
+<h3 id="constructor_2">Constructor</h3>
+<ul>
+<li><code>serdisp</code> The PySerdisp instance to draw the pixels with</li>
+<li><code>position</code> Upper left corner as a 2-tuple or list, ex.: (20,4)</li>
+<li><code>size</code> Progress bar size as a 2-tuple or list</li>
+<li>kwargs<ul>
+<li><code>state</code> The initial progress state. float, 0.0 &lt;= state &lt;= 1.0</li>
+<li><code>border</code> Turns border drawing on or off. Only possible if the bar is at least 3 pixels high and wide. boolean.</li>
+</ul>
+</li>
+</ul>
+<h3 id="members_2">Members</h3>
+<ul>
+<li><code>draw()</code></li>
+<li><code>setState(float)</code></li>
+</ul>
+</div>
+        </div>
+
+        
+
+        <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/prettify-1.0.min.js"></script>
+        <script src="../js/base.js"></script>
+    </body>
+</html>
