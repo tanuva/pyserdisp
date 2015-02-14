@@ -50,7 +50,10 @@ class Pixmap:
 class Text:
 	def __init__(self, serdisp, position, fontpath, fontsize, text, **kwargs):
 		self.serdisp = serdisp
-		self.position = position
+		# Store user defined pos/offsets separately, we must not overwrite those in setText!
+		self.userPos = position
+		# These values may be altered by setText (actual rendering position)
+		self.position = list(position)
 
 		if not os.path.isfile(fontpath):
 			raise ValueError("Font doesn't exist:", fontpath)
@@ -74,16 +77,17 @@ class Text:
 		self.size.append(min(self.bitmap.width, self.serdisp.getWidth() - 2))
 		self.size.append(min(self.bitmap.height, self.serdisp.getHeight() - 2))
 
+		# Setup of the actual rendering position (might be different from self.userPos!)
 		if "halign" in self.kwargs.keys():
 			if self.kwargs["halign"] == "center":
 				self.position[0] = max(2, int((self.serdisp.getWidth() / 2.0) - (self.bitmap.width / 2.0)))
 			elif self.kwargs["halign"] == "right":
-				self.position[0] = self.serdisp.getWidth() - self.bitmap.width - self.position[0]
+				self.position[0] = self.serdisp.getWidth() - self.bitmap.width - self.userPos[0]
 		if "valign" in self.kwargs.keys():
 			if self.kwargs["valign"] == "center":
 				self.position[1] = max(2, int(round((self.serdisp.getHeight() / 2.0) - (self.bitmap.height / 2.0))))
 			elif self.kwargs["valign"] == "bottom":
-				self.position[1] = self.serdisp.getHeight() - self.bitmap.height - self.position[1]
+				self.position[1] = self.serdisp.getHeight() - self.bitmap.height - self.userPos[1]
 
 	def draw(self):
 		for y in xrange(self.size[1]):
