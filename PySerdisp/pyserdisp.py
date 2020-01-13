@@ -220,7 +220,7 @@ class Serdisp:
 
 	def setLogMedium(self, medium):
 		# FIXME
-		print "Serdisp.setLogMedium: log medium docs are incomplete, this might fail."
+		print("Serdisp.setLogMedium: log medium docs are incomplete, this might fail.")
 
 		if medium == "syslog":
 			self.sdl.sd_setlogmedium(0)

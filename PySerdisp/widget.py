@@ -13,38 +13,38 @@ class Pixmap:
 		self.path = path
 		self.position = position
 		if position[0] < 0 or position[1] < 0:
-			print "Warning: position of", path, "is < 0:", position
+			print("Warning: position of", path, "is < 0:", position)
 
 		# load the image
 		img = None
 		try:
 			img = Image.open(path)
 			img.load()
-		except IOError, e:
-			print "Warning: Couldn't open", path
-			print e
+		except IOError as e:
+			print("Warning: Couldn't open", path)
+			print(e)
 			return
 
 		# TODO only if necessary				
 		img.convert("1") # Convert to black/white mode
 		imgData = list(img.getdata())
 		self.size = img.size
-		self.data = [imgData[i * self.size[0]:(i + 1) * self.size[0]] for i in xrange(self.size[1])]
+		self.data = [imgData[i * self.size[0]:(i + 1) * self.size[0]] for i in range(self.size[1])]
 
 	def draw(self):
 		"""
 		Draws the pixmap at the given location.
 		"""
-		for x in xrange(self.size[0]):
-			for y in xrange(self.size[1]):
+		for x in range(self.size[0]):
+			for y in range(self.size[1]):
 				self.serdisp.setColour((x, y), self.data[y][x])
 
 	def erase(self):
 		"""
 		Sets every pixel of the affected region to white.
 		"""
-		for x in xrange(self.size[0]):
-			for y in xrange(self.size[1]):
+		for x in range(self.size[0]):
+			for y in range(self.size[1]):
 				self.serdisp.setColour((x, y), (255, 255, 255, 255))
 
 class Text:
@@ -78,20 +78,20 @@ class Text:
 		self.size.append(min(self.bitmap.height, self.serdisp.getHeight() - 2))
 
 		# Setup of the actual rendering position (might be different from self.userPos!)
-		if "halign" in self.kwargs.keys():
+		if "halign" in list(self.kwargs.keys()):
 			if self.kwargs["halign"] == "center":
 				self.position[0] = max(2, int((self.serdisp.getWidth() / 2.0) - (self.bitmap.width / 2.0)))
 			elif self.kwargs["halign"] == "right":
 				self.position[0] = self.serdisp.getWidth() - self.bitmap.width - self.userPos[0]
-		if "valign" in self.kwargs.keys():
+		if "valign" in list(self.kwargs.keys()):
 			if self.kwargs["valign"] == "center":
 				self.position[1] = max(2, int(round((self.serdisp.getHeight() / 2.0) - (self.bitmap.height / 2.0))))
 			elif self.kwargs["valign"] == "bottom":
 				self.position[1] = self.serdisp.getHeight() - self.bitmap.height - self.userPos[1]
 
 	def draw(self):
-		for y in xrange(self.size[1]):
-			for x in xrange(self.size[0]):
+		for y in range(self.size[1]):
+			for x in range(self.size[0]):
 				pixpos = [self.position[0] + x, self.position[1] + y]
 				pixel = (1 - self.bitmap.pixels[x + y * self.bitmap.width]) * 255
 				self.serdisp.setColour(pixpos, (255, pixel, pixel, pixel))
@@ -119,7 +119,7 @@ class Progressbar:
 		try:
 			self.drawBorder = kwargs["border"]
 			if self.drawBorder and (size[0] < 3 or size[1] < 3):
-				print "Warning: progress bar cannot have a border if x/y size is < 3:", size
+				print("Warning: progress bar cannot have a border if x/y size is < 3:", size)
 				self.drawBorder = False
 		except:
 			self.drawBorder = True
@@ -133,15 +133,15 @@ class Progressbar:
 
 	def draw(self):
 		if self.drawBorder:
-			for x in xrange(self.size[0]):
+			for x in range(self.size[0]):
 				self.serdisp.setColour((self.position[0] + x, self.position[1]), self.colour)
 				self.serdisp.setColour((self.position[0] + x, self.position[1] + selfsize[1] - 1), self.colour)
-			for y in xrange(self.size[1] - 1):
+			for y in range(self.size[1] - 1):
 				self.serdisp.setColour((self.position[0], self.position[1] + y), self.colour)
 				self.serdisp.setColour((self.position[0] + self.size[0] - 1, self.position[1] + y), self.colour)
 
 		# draw the status bar "content"
 		contentWidth = int(round(self.state * float(self.size[0])))
-		for x in xrange(contentWidth):
-			for y in xrange(self.size[1] - 1):
+		for x in range(contentWidth):
+			for y in range(self.size[1] - 1):
 				self.serdisp.setColour((self.position[0] + x, self.position[1] + y), self.colour)
