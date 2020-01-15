@@ -69,8 +69,8 @@ class Serdisp:
 	def init(self):
 		self.conn = self.sdl.SDCONN_open(self.device)
 		if self.conn == 0:
-			raise Exception("Couldn't open display device!")
-		
+			raise Exception("Couldn't open display. Device: \"%s\" Model: \"%s\"" % (self.device, self.model))
+
 		self.disp = self.sdl.serdisp_init(self.conn, self.model, self.options)
 		if self.disp == 0:
 			raise Exception("Couldn't initialize the display!")
