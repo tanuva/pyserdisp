@@ -39,7 +39,7 @@ class Bitmap(object):
     def __init__(self, width, height, pixels=None):
         self.width = width
         self.height = height
-        self.pixels = pixels or bytearray(width * height)
+        self.pixels = pixels or bytearray(int(width * height))
 
     def __repr__(self):
         """Return a string representation of the bitmap's pixels."""
@@ -53,8 +53,8 @@ class Bitmap(object):
     def bitblt(self, src, x, y):
         """Copy all pixels from `src` into this bitmap"""
         srcpixel = 0
-        dstpixel = y * self.width + x
-        row_offset = self.width - src.width
+        dstpixel = int(y * self.width + x)
+        row_offset = int(self.width - src.width)
 
         for sy in range(src.height):
             for sx in range(src.width):
@@ -178,7 +178,7 @@ class Font(object):
 
         # The kerning offset is given in FreeType's 26.6 fixed point format,
         # which means that the pixel values are multiples of 64.
-        return kerning.x / 64
+        return int(kerning.x / 64)
 
     def text_dimensions(self, text):
         """Return (width, height, baseline) of `text` rendered in the current font."""

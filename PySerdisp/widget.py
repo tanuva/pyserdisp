@@ -73,9 +73,10 @@ class Text:
 
 		self.text = text
 		self.bitmap = self.font.render_text(self.text)
-		self.size = []
-		self.size.append(min(self.bitmap.width, self.serdisp.getWidth() - 2))
-		self.size.append(min(self.bitmap.height, self.serdisp.getHeight() - 2))
+		self.size = [
+			int(round(min(self.bitmap.width, self.serdisp.getWidth() - 2))),
+			int(round(min(self.bitmap.height, self.serdisp.getHeight() - 2)))
+		]
 
 		# Setup of the actual rendering position (might be different from self.userPos!)
 		if "halign" in list(self.kwargs.keys()):
@@ -93,7 +94,7 @@ class Text:
 		for y in range(self.size[1]):
 			for x in range(self.size[0]):
 				pixpos = [self.position[0] + x, self.position[1] + y]
-				pixel = (1 - self.bitmap.pixels[x + y * self.bitmap.width]) * 255
+				pixel = (1 - self.bitmap.pixels[x + y * int(round(self.bitmap.width)])) * 255
 				self.serdisp.setColour(pixpos, (255, pixel, pixel, pixel))
 
 class Progressbar:
