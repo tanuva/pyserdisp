@@ -94,7 +94,7 @@ class Text:
 		for y in range(self.size[1]):
 			for x in range(self.size[0]):
 				pixpos = [self.position[0] + x, self.position[1] + y]
-				pixel = (1 - self.bitmap.pixels[x + y * int(round(self.bitmap.width)])) * 255
+				pixel = (1 - self.bitmap.pixels[x + y * int(round(self.bitmap.width))]) * 255
 				self.serdisp.setColour(pixpos, (255, pixel, pixel, pixel))
 
 class Progressbar:
