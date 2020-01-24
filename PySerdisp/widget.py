@@ -37,7 +37,9 @@ class Pixmap:
 		"""
 		for x in range(self.size[0]):
 			for y in range(self.size[1]):
-				self.serdisp.setColour((x, y), self.data[y][x])
+				# HACK: Just taking the red value here since we
+				# hardcoded conversion to greyscale above.
+				self.serdisp.setGrey((x, y), self.data[y][x][0])
 
 	def erase(self):
 		"""
@@ -45,7 +47,7 @@ class Pixmap:
 		"""
 		for x in range(self.size[0]):
 			for y in range(self.size[1]):
-				self.serdisp.setColour((x, y), (255, 255, 255, 255))
+				self.serdisp.setGrey((x, y), (255, 255, 255, 255))
 
 class Text:
 	def __init__(self, serdisp, position, fontpath, fontsize, text, **kwargs):
