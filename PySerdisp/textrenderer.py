@@ -180,17 +180,20 @@ class Font(object):
         # which means that the pixel values are multiples of 64.
         return int(kerning.x / 64)
 
-    def text_dimensions(self, text):
+    def text_dimensions(self, text, glyphs):
         """Return (width, height, baseline) of `text` rendered in the current font."""
         width = 0
         max_ascent = 0
         max_descent = 0
         previous_char = None
 
+        assert(len(text) == len(glyphs))
+
         # For each character in the text string we get the glyph
         # and update the overall dimensions of the resulting bitmap.
-        for char in text:
-            glyph = self.glyph_for_character(char)
+        for i in range(len(text)):
+            char = text[i]
+            glyph = glyphs[i]
             max_ascent = max(max_ascent, glyph.ascent)
             max_descent = max(max_descent, glyph.descent)
             kerning_x = self.kerning_offset(previous_char, char)
@@ -212,15 +215,21 @@ class Font(object):
         If `width`, `height`, and `baseline` are not specified they are computed using
         the `text_dimensions' method.
         """
+
+        glyphs = []
+        for char in text:
+            glyphs.append(self.glyph_for_character(char))
+
         if None in (width, height, baseline):
-            width, height, baseline = self.text_dimensions(text)
+            width, height, baseline = self.text_dimensions(text, glyphs)
 
         x = 0
         previous_char = None
         outbuffer = Bitmap(width, height)
 
-        for char in text:
-            glyph = self.glyph_for_character(char)
+        for i in range(len(text)):
+            char = text[i]
+            glyph = glyphs[i]
 
             # Take kerning information into account before we render the
             # glyph to the output bitmap.
