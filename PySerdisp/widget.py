@@ -25,7 +25,7 @@ class Pixmap:
 			print(e)
 			return
 
-		# TODO only if necessary				
+		# TODO only if necessary
 		img.convert("1") # Convert to black/white mode
 		imgData = list(img.getdata())
 		self.size = img.size
@@ -103,7 +103,7 @@ class Progressbar:
 			raise ValueError("serdisp must be an instance of Serdisp.")
 
 		self.serdisp = serdisp
-		
+
 		if position[0] < 0 or position[1] < 0:
 			raise ValueError("pos must not be negative")
 		self.position = position
