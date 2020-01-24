@@ -37,14 +37,9 @@ class Serdisp:
 				argb = (0xFF << 8) + rgbTuple[0]
 				argb = (argb << 8) + rgbTuple[1]
 				argb = (argb << 8) + rgbTuple[2]
-			elif len(rgbTuple) == 1:
-				# THIS. IS. GREYSCAAAALE!
-				argb = (0xFF << 8) + rgbTuple[0]
-				argb = (argb << 8) + rgbTuple[0]
-				argb = (argb << 8) + rgbTuple[0]
 		except Exception:
-			raise Exception("Colour tuples should be [ARGB], [RGB] or [Greyscale] formatted. Is:", rgbTuple)
-		
+			raise Exception("Colour tuples should be [ARGB], [RGB] formatted. Is:", rgbTuple)
+
 		return c_long(argb)
 
 	# extracts separate argb values from a 32bit integer
