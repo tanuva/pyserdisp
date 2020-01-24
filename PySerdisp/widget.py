@@ -91,11 +91,12 @@ class Text:
 				self.position[1] = self.serdisp.getHeight() - self.bitmap.height - self.userPos[1]
 
 	def draw(self):
+		intWidth = int(round(self.bitmap.width))
 		for y in range(self.size[1]):
 			for x in range(self.size[0]):
 				pixpos = [self.position[0] + x, self.position[1] + y]
-				pixel = (1 - self.bitmap.pixels[x + y * int(round(self.bitmap.width))]) * 255
-				self.serdisp.setColour(pixpos, (255, pixel, pixel, pixel))
+				pixel = (1 - self.bitmap.pixels[x + y * intWidth]) * 255
+				self.serdisp.setGrey(pixpos, pixel)
 
 class Progressbar:
 	def __init__(self, serdisp, position, size, **kwargs):
