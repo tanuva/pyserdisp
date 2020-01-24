@@ -102,7 +102,7 @@ class Glyph(object):
 
         # The advance width is given in FreeType's 26.6 fixed point format,
         # which means that the pixel values are multiples of 64.
-        advance_width = slot.advance.x / 64
+        advance_width = slot.advance.x // 64
 
         return Glyph(pixels, width, height, top, advance_width)
 
@@ -178,7 +178,7 @@ class Font(object):
 
         # The kerning offset is given in FreeType's 26.6 fixed point format,
         # which means that the pixel values are multiples of 64.
-        return int(kerning.x / 64)
+        return kerning.x // 64
 
     def text_dimensions(self, text, glyphs):
         """Return (width, height, baseline) of `text` rendered in the current font."""
