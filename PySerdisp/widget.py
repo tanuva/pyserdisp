@@ -1,7 +1,9 @@
 # coding=utf-8
 
+from math import ceil
 from pyserdisp import Serdisp
 from textrenderer import Font
+import time
 from PIL import Image
 import os
 import sys
@@ -65,6 +67,13 @@ class Text:
 		self.kwargs = kwargs
 		self.font = Font(fontpath, fontsize)
 		self.setText(text)
+		self.lastSlice = 0
+		self.lastDrawTime = None
+
+		if "sliceDuration" in list(self.kwargs.keys()):
+		    self.sliceDuration = float(self.kwargs["sliceDuration"])
+		else:
+		    self.sliceDuration = 5.0
 
 	def setText(self, text):
 		"""
@@ -82,6 +91,13 @@ class Text:
 			int(round(min(self.bitmap.height, self.serdisp.getHeight() - 2)))
 		]
 
+		# Compute text slice count to show sequentially if text is wider
+		# than the display.
+		if len(self.text) > 0:
+		    self.sliceCount = int(ceil(self.bitmap.width / float(self.size[0])))
+		else:
+		    self.sliceCount = 1
+
 		# Setup of the actual rendering position (might be different from self.userPos!)
 		if "halign" in list(self.kwargs.keys()):
 			if self.kwargs["halign"] == "center":
@@ -94,12 +110,45 @@ class Text:
 			elif self.kwargs["valign"] == "bottom":
 				self.position[1] = self.serdisp.getHeight() - self.bitmap.height - self.userPos[1]
 
+	def __getCurrentSliceIdx(self):
+		slcIdx = self.lastSlice
+
+		if not self.lastDrawTime:
+			self.lastDrawTime = time.time()
+			slcIdx = 0
+		elif (time.time() - self.lastDrawTime) > self.sliceDuration:
+			self.lastDrawTime = time.time()
+			slcIdx = (slcIdx + 1) % self.sliceCount
+
+		assert(slcIdx < self.sliceCount)
+		return slcIdx
+
+	def __getSlice(self, slcIdx):
+		slcWidth = self.size[0]
+		txtWidth = self.bitmap.width
+
+		divWidth = txtWidth / self.sliceCount
+		slcCenter = slcIdx * divWidth + (divWidth / 2)
+
+		if slcIdx == 0:
+			return [0, slcWidth]
+		elif slcIdx == self.sliceCount - 1:
+			return [txtWidth - slcWidth, txtWidth]
+		else:
+			return [slcCenter - slcWidth / 2,
+				slcCenter + slcWidth / 2]
+
 	def draw(self):
+		slcIdx = self.__getCurrentSliceIdx()
+		self.lastSlice = slcIdx
+		#print("Drawing: \"%s\" (%i, %i of %i)" % (self.text, self.lastSlice + 1, self.sliceCount))
+		slc = self.__getSlice(slcIdx)
 		intWidth = int(round(self.bitmap.width))
+
 		for y in range(self.size[1]):
-			for x in range(self.size[0]):
+			for x in range(slc[1] - slc[0]):
 				pixpos = [self.position[0] + x, self.position[1] + y]
-				pixel = (1 - self.bitmap.pixels[x + y * intWidth]) * 255
+				pixel = (1 - self.bitmap.pixels[slc[0] + x + y * intWidth]) * 255
 				self.serdisp.setGrey(pixpos, pixel)
 
 class Progressbar:
