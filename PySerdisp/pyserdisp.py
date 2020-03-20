@@ -1,3 +1,5 @@
+# coding: utf-8
+
 # TODO
 # - Try to fetch an error message from serdisplib upon failure to init the disp
 

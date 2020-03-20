@@ -1,3 +1,5 @@
+# coding=utf-8
+
 from pyserdisp import Serdisp
 from textrenderer import Font
 from PIL import Image
