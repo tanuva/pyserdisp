@@ -135,15 +135,15 @@ class Text:
 		elif slcIdx == self.sliceCount - 1:
 			return [txtWidth - slcWidth, txtWidth]
 		else:
-			return [slcCenter - slcWidth / 2,
-				slcCenter + slcWidth / 2]
+			return [round(slcCenter - slcWidth / 2),
+				round(slcCenter + slcWidth / 2)]
 
 	def draw(self):
 		slcIdx = self.__getCurrentSliceIdx()
 		self.lastSlice = slcIdx
 		#print("Drawing: \"%s\" (%i, %i of %i)" % (self.text, self.lastSlice + 1, self.sliceCount))
 		slc = self.__getSlice(slcIdx)
-		intWidth = int(round(self.bitmap.width))
+		intWidth = round(self.bitmap.width)
 
 		for y in range(self.size[1]):
 			for x in range(slc[1] - slc[0]):
