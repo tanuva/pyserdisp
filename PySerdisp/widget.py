@@ -44,7 +44,7 @@ class Pixmap:
 				# hardcoded conversion to greyscale above.
 				#print("y%i x%i b%i" % (x, y, self.data[y][x]))
 				b = 0
-				if (self.data[y][x] > 0): b = 255
+				if (self.data[y][x][0] > 0): b = 255
 				self.serdisp.setGrey((x+self.position[0], y+self.position[1]), b) #self.data[y][x][0]
 
 	def erase(self):
