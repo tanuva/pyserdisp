@@ -7,7 +7,6 @@ import time
 from PIL import Image
 import os
 import sys
-
 class Pixmap:
 	def __init__(self, serdisp, path, position):
 		if not isinstance(serdisp, Serdisp):
@@ -43,7 +42,10 @@ class Pixmap:
 			for y in range(self.size[1]):
 				# HACK: Just taking the red value here since we
 				# hardcoded conversion to greyscale above.
-				self.serdisp.setGrey((x, y), self.data[y][x][0])
+				#print("y%i x%i b%i" % (x, y, self.data[y][x]))
+				b = 0
+				if (self.data[y][x] > 0): b = 255
+				self.serdisp.setGrey((x+self.position[0], y+self.position[1]), b) #self.data[y][x][0]
 
 	def erase(self):
 		"""
@@ -190,7 +192,7 @@ class Progressbar:
 		if self.drawBorder:
 			for x in range(self.size[0]):
 				self.serdisp.setColour((self.position[0] + x, self.position[1]), self.colour)
-				self.serdisp.setColour((self.position[0] + x, self.position[1] + selfsize[1] - 1), self.colour)
+				self.serdisp.setColour((self.position[0] + x, self.position[1] + self.size[1] - 1), self.colour)
 			for y in range(self.size[1] - 1):
 				self.serdisp.setColour((self.position[0], self.position[1] + y), self.colour)
 				self.serdisp.setColour((self.position[0] + self.size[0] - 1, self.position[1] + y), self.colour)
